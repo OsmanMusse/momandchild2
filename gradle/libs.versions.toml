@@ -39,6 +39,8 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version = "2.6.2" }
+places = { group = "com.google.android.libraries.places", name = "places", version = "3.3.0" }
+androidx-ui-android = { group = "androidx.compose.ui", name = "ui-android", version = "1.5.4" }
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }

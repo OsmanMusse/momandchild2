@@ -1,5 +1,6 @@
 package screens
 
+import RealDatePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,12 +19,15 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerFormatter
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,23 +40,52 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import components.DefaultBtn
+import cafe.adriel.voyager.navigator.screenModel.rememberNavigatorScreenModel
+import components.MultiStyleText
+import data.local.PreferencesKeys
+import datePicker.AdaptiveDatePickerState
+import datePicker.UIKitDisplayMode
+import datePicker.rememberAdaptiveDatePickerState
 import dev.icerock.moko.resources.compose.colorResource
 import dev.icerock.moko.resources.compose.painterResource
+import helpers.Utils
+import kotlinx.datetime.Clock
 import org.example.momandbaby2.MR
+import switch.CustomSwitch
+
 
 class DueDateScreen: Screen {
+
+    @Composable
+    fun initialSetup(datePickerState: AdaptiveDatePickerState, onSwitchChange: (Boolean) -> Unit){
+        val dueDate = settings.getLong(PreferencesKeys.DUE_DATE,0L)
+        dueDate.also { miliseconds ->
+            if (dueDate == 0L) return
+                datePickerState.setSelection(miliseconds)
+                onSwitchChange(true)
+
+        }
+
+    }
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalVoyagerApi::class)
     @Composable
     override fun Content() {
 
         val navigator = LocalNavigator.currentOrThrow
+        val sharedScreenModel = navigator.rememberNavigatorScreenModel { HomeScreenModel() }
 
         var switchChecked by remember { mutableStateOf(false) }
-
+        var addDueDate by remember { mutableStateOf("Add your due date")  }
+        var initialLoad = remember { mutableStateOf(true) }
+        var state = rememberAdaptiveDatePickerState()
         val mutableInteractionSource = remember{ MutableInteractionSource() }
+
+        initialSetup(datePickerState = state, onSwitchChange = { switchChecked = it })
+
 
         Column(
             modifier = Modifier
@@ -61,7 +93,6 @@ class DueDateScreen: Screen {
                 .background(Color.White)
                 .padding(top = 80.dp)
         ){
-
             Column(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp)
             ){
@@ -84,18 +115,20 @@ class DueDateScreen: Screen {
                         modifier = Modifier.weight(1f)
                     )
 
-                    Switch(
-                        checked = switchChecked,
-                        onCheckedChange = { switchChecked = it},
-                        colors = SwitchDefaults.colors(
-
-                            checkedTrackColor = colorResource(MR.colors.primaryColor),
-                            checkedThumbColor = Color.White,
-                            uncheckedThumbColor = colorResource(MR.colors.thumbColor),
-                            uncheckedTrackColor = colorResource(MR.colors.trackColor)
+                        CustomSwitch(
+                            shouldPreSelect = switchChecked,
+                            onValueChange = { isChecked ->
+                                if (!isChecked) {
+                                    addDueDate = "Add your due date"
+                                    state.setSelection(null)
+                                }
+                                switchChecked = isChecked
+                            }
                         )
-                    )
+
                 }
+
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Divider(
                     modifier = Modifier.fillMaxWidth(),
@@ -103,8 +136,6 @@ class DueDateScreen: Screen {
                 )
 
             }
-
-
 
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -121,20 +152,53 @@ class DueDateScreen: Screen {
                     )
 
                     Spacer(modifier = Modifier.height(15.dp))
-                    Button(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp).height(50.dp),
-                        onClick = {},
-                        contentPadding = PaddingValues(horizontal = 0.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = colorResource(MR.colors.primaryColor))
-                    ) {
-                        Text(
-                            text = "Set date",
-                            modifier = Modifier.fillMaxWidth().weight(1f),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
-                            textAlign = TextAlign.Center
+
+                    Column(modifier = Modifier.fillMaxWidth().background(Color.Black),horizontalAlignment = Alignment.Start) {
+                        RealDatePicker(
+                            state = state,
+                            modifier = Modifier.fillMaxWidth(),
+                            dateFormatter = DatePickerFormatter(),
+                            colors = DatePickerDefaults.colors(),
+                            headline = null,
+                            title = null,
+                            showModeToggle = initialLoad.value && settings.getLong(PreferencesKeys.DUE_DATE,0L) != 0L
                         )
+
+                        initialLoad.value = false
+
+
+                        LaunchedEffect(state.selectedDateMillis){
+                            if(state.selectedDateMillis == null) addDueDate = "Add your due date"
+                            else {
+                                // Pass the due date to Shared Preferences
+                               settings.putLong(PreferencesKeys.DUE_DATE, state.selectedDateMillis!!)
+
+                               val weeks = Utils.calculateDueDate(state.selectedDateMillis!!)
+                                sharedScreenModel.dueDate = state.selectedDateMillis!!
+                                addDueDate = "$weeks"
+                            }
+                        }
                     }
+
+
+                    // Android Button Show only
+//                    Button(
+//                        modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp).height(50.dp),
+//                        onClick = {
+//                           showDateDialog = true
+//                        },
+//                        contentPadding = PaddingValues(horizontal = 0.dp),
+//                        colors = ButtonDefaults.buttonColors(containerColor = colorResource(MR.colors.primaryColor))
+//                    ) {
+//                        Text(
+//                            text = "Set date",
+//                            modifier = Modifier.fillMaxWidth().weight(1f),
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight.Normal,
+//                            textAlign = TextAlign.Center
+//                        )
+//                    }
+
 
                     Spacer(modifier = Modifier.height(20.dp))
 
@@ -155,13 +219,24 @@ class DueDateScreen: Screen {
                             .indication(interactionSource = mutableInteractionSource, indication = null),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(
-                            text = "Add your due date",
-                            color = colorResource(MR.colors.brown_color),
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 19.sp,
-                            modifier = Modifier.padding(13.dp),
-                        )
+                        if(state.selectedDateMillis == null){
+                            Text(
+                                text = addDueDate,
+                                color = colorResource(MR.colors.brown_color),
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 19.sp,
+                                modifier = Modifier.padding(13.dp)
+                            )
+                        } else {
+                            MultiStyleText(
+                                text1 = "I'm ",
+                                color1 = colorResource(MR.colors.brown_color),
+                                text2 = "${addDueDate}",
+                                color2 = colorResource(MR.colors.primaryColor),
+                                text3 = if(addDueDate == "1") " week pregnant" else " weeks pregnant"
+                            )
+                        }
+
                     }
 
 

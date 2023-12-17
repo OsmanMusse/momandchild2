@@ -18,7 +18,7 @@ kotlin {
             }
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -29,6 +29,7 @@ kotlin {
             isStatic = true
             export("dev.icerock.moko:resources:0.23.0")
             export("dev.icerock.moko:graphics:0.9.0")
+
         }
     }
 
@@ -52,14 +53,19 @@ kotlin {
 
             api("dev.icerock.moko:resources:0.23.0")
             api("dev.icerock.moko:resources-compose:0.23.0")
+            // For Adaptive UI components
             implementation(compose.runtime)
             implementation(compose.foundation)
+            implementation(compose.ui)
             implementation(compose.material3)
+            implementation(compose.material)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
             implementation(libs.decompose)
             implementation(libs.decompose.jetbrains)
             implementation(libs.kotlinx.serialization.json)
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+            implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
         }
 
         val iosX64Main by getting {
@@ -131,6 +137,8 @@ android {
 }
 dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.places)
+    implementation(libs.androidx.ui.android)
 }
 
 multiplatformResources {

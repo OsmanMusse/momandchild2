@@ -40,25 +40,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.ScreenModelStore
+import cafe.adriel.voyager.core.model.rememberScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.stack.mutableStateStackOf
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.screenModel.rememberNavigatorScreenModel
+import com.russhwolf.settings.Settings
+import components.MultiStyleText
+import data.local.PreferencesKeys
 import dev.icerock.moko.resources.compose.colorResource
 import dev.icerock.moko.resources.compose.fontFamilyResource
 import dev.icerock.moko.resources.compose.painterResource
+import helpers.Utils
 import org.example.momandbaby2.MR
 import verticalScrollWithScrollbar
+
+val settings: Settings = Settings()
+
+class HomeScreenModel: ScreenModel {
+    var dueDate: Long = settings.getLong(PreferencesKeys.DUE_DATE,0L)
+}
 
 data class HomeScreen(
     private val scaffoldPaddingValues: PaddingValues
 ):Screen {
+
+    @OptIn(ExperimentalVoyagerApi::class)
     @Composable
     override fun Content() {
-        val mutableInteractionSource = remember{ MutableInteractionSource() }
         val interactionSource = remember { MutableInteractionSource() }
         val navigator = LocalNavigator.currentOrThrow
-
+        val sharedScreenModel = navigator.rememberNavigatorScreenModel { HomeScreenModel() }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -91,7 +109,7 @@ data class HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(
-                        interactionSource = mutableInteractionSource,
+                        interactionSource = interactionSource,
                         indication = null,
                         onClick = { navigator.push(DueDateScreen()) }
                     )
@@ -104,13 +122,24 @@ data class HomeScreen(
                     .indication(interactionSource, indication = null),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    text = "Add your due date",
-                    color = colorResource(MR.colors.brown_color),
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(10.dp),
-                )
+                if(sharedScreenModel.dueDate == 0L){
+                    Text(
+                        text =  "Add your due date",
+                        color = colorResource(MR.colors.brown_color),
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(13.dp),
+                    )
+                } else {
+                    val weeksDue = Utils.calculateDueDate(sharedScreenModel.dueDate)
+                    MultiStyleText(
+                        text1 = "I'm ",
+                        color1 = colorResource(MR.colors.brown_color),
+                        text2 = "$weeksDue",
+                        color2 = colorResource(MR.colors.primaryColor),
+                        text3 = if (weeksDue == 1) " week pregnant" else " weeks pregnant"
+                    )
+                }
             }
 
 
@@ -159,7 +188,7 @@ data class HomeScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable(
-                                    interactionSource = mutableInteractionSource,
+                                    interactionSource = MutableInteractionSource(),
 
                                     indication = rememberRipple(color = Color.White)
 

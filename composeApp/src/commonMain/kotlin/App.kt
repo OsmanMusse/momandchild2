@@ -113,6 +113,7 @@ import screens.DueDateScreen
 import screens.HomeScreen
 import screens.MaternityScreen
 import kotlin.math.max
+import androidx.compose.ui.viewinterop.InteropView
 
 
 
@@ -133,6 +134,7 @@ fun App() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     MaterialTheme {
+
 
      Navigator(screen = HomeScreen(PaddingValues(0.dp))) { navigator ->
          ModalNavigationDrawer(
