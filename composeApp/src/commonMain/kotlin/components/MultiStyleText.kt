@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,4 +35,16 @@ fun MultiStyleText(text1: String, color1: Color, text2: String, color2: Color,te
             append(text3)
         }
     },modifier = Modifier.padding(13.dp))
+}
+
+
+@Composable
+fun MultiColorText(vararg textWithColors: Pair<String, Color>) {
+    Text(text = buildAnnotatedString {
+        textWithColors.forEach { (text, color) ->
+            withStyle(style = SpanStyle(color = color)) {
+                append(text)
+            }
+        }
+    },fontSize = 15.sp)
 }

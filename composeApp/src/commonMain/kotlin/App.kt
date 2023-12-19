@@ -266,7 +266,10 @@ fun App() {
                              label = {
                                  Text("Maternity units", fontSize = 14.sp, color = colorResource(MR.colors.primaryColor))
                              },
-                             onClick = {},
+                             onClick = {
+                                 navigator.push(MaternityScreen())
+                                 scope.launch { drawerState.close() }
+                             },
                              colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = Color.White),
                              selected = false
                          )
@@ -386,7 +389,10 @@ fun App() {
                          ){
                              TextButton(
                                  modifier = Modifier.fillMaxWidth(),
-                                 onClick = {},
+                                 onClick = {
+                                   navigator.push(DueDateScreen())
+                                   scope.launch { drawerState.close() }
+                                 },
                                  shape = RectangleShape
                              ){
                                  Text(

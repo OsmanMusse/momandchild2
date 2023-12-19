@@ -14,6 +14,8 @@
 
     <!-- Button Colors -->
     <color name="btn_green_color">#2ec3aa</color>
+    <color name="btn_dark_green">#3b9f8a</color>
+    <color name="dark_light_color">#2dc4a7</color>
 
 
 
