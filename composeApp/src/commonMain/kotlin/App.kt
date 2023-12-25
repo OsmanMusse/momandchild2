@@ -114,7 +114,7 @@ import screens.HomeScreen
 import screens.MaternityScreen
 import kotlin.math.max
 import androidx.compose.ui.viewinterop.InteropView
-
+import screens.ParserScreen
 
 
 data class Choice(
@@ -322,7 +322,10 @@ fun App() {
                              label = {
                                  Text("Your Pregnancy", fontSize = 14.sp, color = colorResource(MR.colors.primaryColor))
                              },
-                             onClick = {},
+                             onClick = {
+                                 navigator.push(ParserScreen())
+                                 scope.launch { drawerState.close() }
+                             },
                              colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = Color.White),
                              selected = false
                          )
@@ -509,6 +512,7 @@ fun App() {
                                      is HomeScreen -> "Home"
                                      is MaternityScreen -> "Maternity units"
                                      is DueDateScreen -> "Your due date"
+                                     is ParserScreen -> "Your Pregnancy"
                                      else -> "Home"
                                  }, color = Color.White, textAlign = TextAlign.Center, fontSize = 19.sp, fontWeight = FontWeight.SemiBold,
                                  modifier = Modifier.fillMaxWidth()

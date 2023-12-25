@@ -262,12 +262,11 @@ data class HomeScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f)
+                                .clickable {
+                                    navigator.push(ParserScreen())
+                                }
                                 .height(100.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = colorResource(
-                                    MR.colors.primaryColor
-                                )
-                            )
+                            colors = CardDefaults.cardColors(containerColor = colorResource(MR.colors.primaryColor))
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxSize(),

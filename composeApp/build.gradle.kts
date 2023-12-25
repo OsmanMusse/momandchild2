@@ -40,7 +40,9 @@ kotlin {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.decompose)
+            implementation(libs.ktor.client.okhttp)
         }
+
 
         commonMain.dependencies {
             val voyagerVersion = "1.0.0-rc10"
@@ -53,6 +55,11 @@ kotlin {
 
             api("dev.icerock.moko:resources:0.23.0")
             api("dev.icerock.moko:resources-compose:0.23.0")
+
+            // only ViewModel, EventsDispatcher, Dispatchers.UI
+            api("dev.icerock.moko:mvvm-core:0.16.1")
+            api("dev.icerock.moko:mvvm-compose:0.16.1")
+
             // For Adaptive UI components
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -66,7 +73,20 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
+
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+
+            // For parsing HTML
+            implementation("com.fleeksoft.ksoup:ksoup:0.1.0")
+
+            // Media Loading Library
+            implementation("media.kamel:kamel-image:0.9.1")
+
         }
+
+
 
         val iosX64Main by getting {
             resources.srcDirs("build/generated/moko/iosX64Main/src")
@@ -78,13 +98,17 @@ kotlin {
             resources.srcDirs("build/generated/moko/iosSimulatorArm64Main/src")
         }
 
-
         val iosMain by creating {
             dependsOn(commonMain.get())
+            this.dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
             iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
         }
+
+
 
 
 

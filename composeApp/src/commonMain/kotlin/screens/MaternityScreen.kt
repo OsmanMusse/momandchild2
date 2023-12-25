@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -237,7 +238,6 @@ class MaternityScreen : Screen {
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight()
-                        .padding(bottom = 5.dp)
                         .background(Color(238, 247, 246))
                 ) {
                     val relatedLink1 =
@@ -255,15 +255,17 @@ class MaternityScreen : Screen {
                     )
 
                     relatedList.forEach {
+                        if (relatedList.first() != it) Divider(modifier = Modifier.fillMaxWidth(), color = Color.White)
                         Row(
                             modifier = Modifier
                             .fillMaxWidth()
-                            .padding(22.dp),
+                            .clickable {  }
+                            .padding(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(45.dp)
+                                    .size(40.dp)
                                     .clip(RoundedCornerShape(14.dp))
                                     .background(color = colorResource(MR.colors.dark_light_color)),
                                 contentAlignment = Alignment.Center
@@ -276,7 +278,7 @@ class MaternityScreen : Screen {
                                 )
                             }
 
-                            Spacer(modifier = Modifier.width(10.dp))
+                            Spacer(modifier = Modifier.width(15.dp))
                             Text(
                                 text = "${it.title}",
                                 modifier = Modifier.fillMaxWidth().weight(1f),
@@ -284,7 +286,7 @@ class MaternityScreen : Screen {
                                 fontSize = 14.sp
                             )
 
-                            Spacer(modifier = Modifier.width(15.dp))
+                            Spacer(modifier = Modifier.width(20.dp))
 
 
                             Icon(
@@ -293,6 +295,7 @@ class MaternityScreen : Screen {
                                 contentDescription = null,
                                 tint = colorResource(MR.colors.trackColor)
                             )
+
                         }
                     }
 
