@@ -51,7 +51,7 @@ import verticalScrollWithScrollbar
 
 data class RelatedLinksModel(
     val title: String,
-    val icon: ImageResource,
+    val icon: ImageResource? = null,
 )
 
 class MaternityScreen : Screen {
@@ -272,7 +272,7 @@ class MaternityScreen : Screen {
                             ){
                                 Icon(
                                     modifier = Modifier.size(25.dp),
-                                    painter = painterResource(it.icon),
+                                    painter = painterResource(it.icon!!),
                                     contentDescription = null,
                                     tint = Color.Unspecified
                                 )

@@ -2,11 +2,9 @@ package screens
 
 import Choice
 import ScrollBarConfig
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,8 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,17 +38,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.ScreenModelStore
-import cafe.adriel.voyager.core.model.rememberScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.stack.mutableStateStackOf
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.screenModel.rememberNavigatorScreenModel
 import com.russhwolf.settings.Settings
 import components.MultiStyleText
+import data.local.MainData
 import data.local.PreferencesKeys
 import dev.icerock.moko.resources.compose.colorResource
 import dev.icerock.moko.resources.compose.fontFamilyResource
@@ -63,20 +56,22 @@ import verticalScrollWithScrollbar
 
 val settings: Settings = Settings()
 
-class HomeScreenModel: ScreenModel {
+class SharedViewModel(): ScreenModel {
     var dueDate: Long = settings.getLong(PreferencesKeys.DUE_DATE,0L)
+    var mainData: Map<String,MainData>? = null
+    var navTitle: String = "Home"
+    var shouldShowBackBtn: Boolean = false
+    var navigationStack = mutableStateStackOf("Home")
 }
 
-data class HomeScreen(
-    private val scaffoldPaddingValues: PaddingValues
-):Screen {
+ class HomeScreen:Screen {
 
     @OptIn(ExperimentalVoyagerApi::class)
     @Composable
     override fun Content() {
         val interactionSource = remember { MutableInteractionSource() }
         val navigator = LocalNavigator.currentOrThrow
-        val sharedScreenModel = navigator.rememberNavigatorScreenModel { HomeScreenModel() }
+        val sharedScreenModel = navigator.rememberNavigatorScreenModel { SharedViewModel() }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -161,8 +156,8 @@ data class HomeScreen(
                     fontSize = 15.sp
                 )
             }
-//
-//
+
+
             Spacer(modifier = Modifier.height(17.dp))
 
             // Section 1
@@ -263,7 +258,10 @@ data class HomeScreen(
                                 .fillMaxWidth()
                                 .weight(1f)
                                 .clickable {
-                                    navigator.push(ParserScreen())
+                                    val mainData =  sharedScreenModel?.mainData?.get(if (i == 0) "Your pregnancy" else "Getting ready for birth")
+                                    sharedScreenModel.navTitle = if (i==0) "Your pregnancy" else "Getting ready for birth"
+                                    sharedScreenModel.navigationStack.push(sharedScreenModel.navTitle)
+                                    navigator.push(TopicsListScreen(isRootScreen = true,mainData = mainData!!))
                                 }
                                 .height(100.dp),
                             colors = CardDefaults.cardColors(containerColor = colorResource(MR.colors.primaryColor))

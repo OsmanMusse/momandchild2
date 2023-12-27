@@ -76,7 +76,7 @@ class DueDateScreen: Screen {
     override fun Content() {
 
         val navigator = LocalNavigator.currentOrThrow
-        val sharedScreenModel = navigator.rememberNavigatorScreenModel { HomeScreenModel() }
+        val sharedScreenModel = navigator.rememberNavigatorScreenModel { SharedViewModel() }
 
         var switchChecked by remember { mutableStateOf(false) }
         var addDueDate by remember { mutableStateOf("Add your due date")  }
@@ -251,7 +251,7 @@ class DueDateScreen: Screen {
             Button(
                 modifier = Modifier.fillMaxWidth().height(47.dp),
                 onClick = {
-                   navigator.popUntilRoot()
+                   navigator.popUntil { navigator.lastItem is HomeScreen }
                 },
                 shape = RectangleShape,
                 contentPadding = PaddingValues(horizontal = 13.dp),

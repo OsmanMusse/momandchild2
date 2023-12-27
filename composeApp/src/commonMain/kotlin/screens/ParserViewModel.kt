@@ -7,7 +7,6 @@ import data.local.MainData
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
@@ -32,8 +31,9 @@ class ParserViewModel: ViewModel() {
          _state.value = _state.value.copy(mainData = data.get("Your pregnancy"))
     }
 
-     fun parserHTML(){
-        val html = "<h1 class ='h1.entry-title'>My Heading</h1><p class = 'main-text'>Mascuud is playing football</p>"
+     fun parserHTML(content:String){
+//         "<h1 class ='h1.entry-title'>My Heading</h1><p class = 'main-text'>Mascuud is playing football</p>"
+        val html = content
 
         val doc: Document = Ksoup.parse(html = html)
         val body = doc.body().children()
@@ -42,7 +42,11 @@ class ParserViewModel: ViewModel() {
          body.forEach {
              when(it.tagName()){
                   "h1" -> list.add(parseTitle(it))
+                  "h2" -> list.add(parseSubTitle(it))
                   "p" -> list.add(parseParagraph(it))
+                  "img" -> list.add(parseImage(it))
+                  "li" -> list.add(parseList(it))
+                  "a" -> list.add(parseRelatedLink(it))
              }
         }
 
@@ -54,12 +58,28 @@ class ParserViewModel: ViewModel() {
         return Title(element.getElementsByClass("h1.entry-title")?.text() ?: "NOTHING")
     }
 
+    private fun parseSubTitle(element: Element): SubTitle{
+        return SubTitle(element.text())
+    }
+
     private fun parseImage(element: Element): Image {
-        return Image(link = element.selectFirst("img-header")?.text() ?: "NO IMAGE", null)
+        return Image(link = element.getElementsByClass("img-header")?.get(0)?.attr("src") ?: "NO IMAGE", null)
+    }
+
+    private fun parseList(element: Element): BulletList {
+        return BulletList(element.text())
     }
 
     private fun parseParagraph(element: Element): Paragraph {
-        return Paragraph(text = element.getElementsByClass("main-text")?.text() ?: "NO PARAGRAPH",null)
+        return Paragraph(element.text())
+
+    }
+
+    private fun parseRelatedLink(element:Element): RelatedLink{
+        val retrievedLink = element.attr("href")
+        val islinkFirst = element.attr("id") == "true"
+
+        return RelatedLink(text = element.text(), link = retrievedLink, isElementFirst = islinkFirst )
     }
 }
 
