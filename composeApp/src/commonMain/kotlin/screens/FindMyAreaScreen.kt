@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -45,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import dev.icerock.moko.resources.compose.colorResource
 import dev.icerock.moko.resources.compose.painterResource
 import org.example.momandbaby2.MR
@@ -56,6 +59,7 @@ class FindMyAreaScreen: Screen {
     @OptIn(ExperimentalMaterialApi::class, ExperimentalResourceApi::class)
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
         var text by remember { mutableStateOf("") }
 
         Column(
@@ -84,13 +88,12 @@ class FindMyAreaScreen: Screen {
                             .width(100.dp)
                             .height(54.dp)
                             .offset(y = -1.dp)
-                            .background(colorResource(MR.colors.btn_green_color),RoundedCornerShape(
-                                topStart = 0.dp,
-                                topEnd = 6.dp,
-                                bottomEnd = 6.dp,
-                                bottomStart = 0.dp
-                            ))
-                            .align(Alignment.CenterEnd),
+                            .background(colorResource(MR.colors.btn_green_color),
+                                shape = RoundedCornerShape(0.dp, 6.dp, 6.dp, 0.dp))
+                            .align(Alignment.CenterEnd)
+                            .clickable {
+                                navigator.push(AreaListScreen())
+                            },
                         ){
                         Icon(
                             painter = painterResource(MR.images.search_icon_ios),

@@ -543,7 +543,7 @@ fun App() {
                                          Icon(painter =  painterResource(MR.images.arrow_back_ios),
                                              tint = Color.White,
                                              contentDescription = null,
-                                             modifier = Modifier.size(28.dp).offset(y = 5.dp).clickable {
+                                             modifier = Modifier.size(22.dp).offset(y = 2.dp).clickable {
                                                  navigator.pop()
                                                  when(navigator.lastItem){
                                                      is ParserScreen -> {

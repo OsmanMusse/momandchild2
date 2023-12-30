@@ -44,11 +44,7 @@ data class Title(val text: String) : Component()
 
 data class SubTitle(val text: String): Component()
 
-data class Header(val text: String) : Component()
-
 data class Image(val link: String, val caption: String?) : Component()
-
-data class GifImage(val link: String, val caption: String?) : Component()
 
 data class Paragraph(val text: String, val title: String? = null) : Component()
 
@@ -57,7 +53,6 @@ data class BulletList(val text: String): Component()
 data class RelatedLink(val text:String, val link: String, val isElementFirst: Boolean): Component()
 
 
-data class Newsletter(val rawHtml: String) : Component()
 
 data class Article(
     val url: String? = null,
@@ -70,7 +65,6 @@ data class TopicsListScreen(
     val mainData: MainData,
     val navTitle: String? = null
 ) : Screen {
-
 
     override val key: ScreenKey = uniqueScreenKey
 

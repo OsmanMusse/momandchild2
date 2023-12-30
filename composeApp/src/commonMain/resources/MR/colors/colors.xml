@@ -18,6 +18,8 @@
     <color name="btn_dark_green">#3b9f8a</color>
     <color name="dark_light_color">#2dc4a7</color>
 
+    <!-- Background Colors    -->
+    <color name = "gray_bg">#868686</color>
 
 
 
