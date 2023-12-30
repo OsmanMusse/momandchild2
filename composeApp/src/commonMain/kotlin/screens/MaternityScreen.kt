@@ -37,9 +37,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.screenModel.rememberNavigatorScreenModel
 import com.arkivanov.decompose.ComponentContext
 import components.MultiColorText
 import components.MultiStyleText
@@ -55,13 +57,17 @@ data class RelatedLinksModel(
 )
 
 class MaternityScreen : Screen {
+    @OptIn(ExperimentalVoyagerApi::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val sharedViewModel = navigator.rememberNavigatorScreenModel { SharedViewModel() }
         Column(
             Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -110,7 +116,11 @@ class MaternityScreen : Screen {
 
                     Button(
                         modifier = Modifier.fillMaxWidth().height(47.dp),
-                        onClick = {},
+                        onClick = {
+                             sharedViewModel.navigationStack.push("Find my NHS area")
+                             sharedViewModel.shouldShowBackBtn = true
+                             navigator.push(FindMyAreaScreen())
+                        },
                         contentPadding = PaddingValues(horizontal = 23.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = colorResource(MR.colors.primaryColor))
                     ) {

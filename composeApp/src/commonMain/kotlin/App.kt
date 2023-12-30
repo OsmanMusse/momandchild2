@@ -7,8 +7,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -536,46 +538,47 @@ fun App() {
                  Scaffold( topBar = {
                          TopAppBar(
                              title = {
-                                 if(sharedViewModel.shouldShowBackBtn){
-                                     Icon(imageVector = Icons.Outlined.ArrowBack,
-                                         tint = Color.White,
-                                         contentDescription = null,
-                                         modifier = Modifier.clickable {
-                                             navigator.pop()
-                                             when(navigator.lastItem){
-                                                 is ParserScreen -> {
-                                                     sharedViewModel.shouldShowBackBtn = true
-                                                     sharedViewModel.navigationStack.pop()
-                                                 }
-                                                 is TopicsListScreen -> {
-                                                     val listSize = sharedViewModel.navigationStack.size
-                                                     sharedViewModel.shouldShowBackBtn =
-                                                         sharedViewModel.navigationStack.items[listSize -1] != sharedViewModel.navigationStack.items[listSize -2]
+                                 Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceBetween,verticalAlignment = Alignment.CenterVertically){
+                                     if(sharedViewModel.shouldShowBackBtn){
+                                         Icon(painter =  painterResource(MR.images.arrow_back_ios),
+                                             tint = Color.White,
+                                             contentDescription = null,
+                                             modifier = Modifier.size(28.dp).offset(y = 5.dp).clickable {
+                                                 navigator.pop()
+                                                 when(navigator.lastItem){
+                                                     is ParserScreen -> {
+                                                         sharedViewModel.shouldShowBackBtn = true
+                                                         sharedViewModel.navigationStack.pop()
+                                                     }
+                                                     is TopicsListScreen -> {
+                                                         val listSize = sharedViewModel.navigationStack.size
+                                                         sharedViewModel.shouldShowBackBtn =
+                                                             sharedViewModel.navigationStack.items[listSize -1] != sharedViewModel.navigationStack.items[listSize -2]
 
-                                                     sharedViewModel.navigationStack.pop()
+                                                         sharedViewModel.navigationStack.pop()
+                                                     }
+                                                     else -> sharedViewModel.shouldShowBackBtn = false
                                                  }
-                                                 else -> sharedViewModel.shouldShowBackBtn = false
                                              }
-                                         }
+                                         )
+                                     }
+                                     Text(
+                                         text = when (navigator.lastItem) {
+                                             is HomeScreen -> "Home"
+                                             is MaternityScreen -> "Maternity units"
+                                             is DueDateScreen -> "Your due date"
+                                             else -> {
+                                                 println("LAST ITEM == ${sharedViewModel.navigationStack.lastOrNull}")
+                                                 sharedViewModel.navigationStack.lastOrNull!!
+                                             }
+                                         },
+                                         color = Color.White,
+                                         textAlign = TextAlign.Center,
+                                         fontSize = 19.sp,
+                                         fontWeight = FontWeight.SemiBold,
+                                         modifier = Modifier.fillMaxWidth()
                                      )
                                  }
-
-                                 Text(
-                                     text = when (navigator.lastItem) {
-                                         is HomeScreen -> "Home"
-                                         is MaternityScreen -> "Maternity units"
-                                         is DueDateScreen -> "Your due date"
-                                         else -> {
-                                             println("LAST ITEM == ${sharedViewModel.navigationStack.lastOrNull}")
-                                             sharedViewModel.navigationStack.lastOrNull!!
-                                         }
-                                     },
-                                     color = Color.White,
-                                     textAlign = TextAlign.Center,
-                                     fontSize = 19.sp,
-                                     fontWeight = FontWeight.SemiBold,
-                                     modifier = Modifier.fillMaxWidth()
-                                 )
                              },
                              actions = {
                                  Text(
