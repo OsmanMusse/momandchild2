@@ -314,7 +314,11 @@ class MaternityScreen : Screen {
 
 
             Button(
-                onClick = {},
+                onClick = {
+                    sharedViewModel.navigationStack.push("Find my NHS area")
+                    sharedViewModel.shouldShowBackBtn = true
+                    navigator.push(FindMyAreaScreen())
+                },
                 modifier = Modifier
                     .padding(vertical = 2.dp)
                     .fillMaxWidth()

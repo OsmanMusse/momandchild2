@@ -1,11 +1,8 @@
 package screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,10 +16,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -36,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -44,23 +38,66 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.screenModel.rememberNavigatorScreenModel
 import dev.icerock.moko.resources.compose.colorResource
 import dev.icerock.moko.resources.compose.painterResource
+import dialogs.AdaptiveAlertDialog
 import org.example.momandbaby2.MR
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 
 class FindMyAreaScreen: Screen {
 
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalResourceApi::class)
+    @OptIn(ExperimentalMaterialApi::class, ExperimentalResourceApi::class,
+        ExperimentalVoyagerApi::class
+    )
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         var text by remember { mutableStateOf("") }
+        val sharedViewModel = navigator.rememberNavigatorScreenModel { SharedViewModel() }
+        var shouldShowAlertDialog = remember { mutableStateOf(false) }
+        var shouldShowPostcodeAlertDialog = remember { mutableStateOf(false) }
+
+        if(shouldShowAlertDialog.value){
+            AdaptiveAlertDialog(
+                title = "Continue with no NHS area selected",
+                text = "You can explore the different areas at any time from the home screen. Continue without area selection?",
+                confirmText = "Yes",
+                dismissText = "No",
+                onConfirm = {
+                    shouldShowAlertDialog.value = false
+                    sharedViewModel.shouldShowBackBtn = true
+                    sharedViewModel.hospitalName = null
+                    navigator.popUntil { navigator.lastItem is HomeScreen }
+                },
+                onDismiss = {
+                    shouldShowAlertDialog.value = false
+                },
+                properties = DialogProperties()
+            )
+        }
+        if(shouldShowPostcodeAlertDialog.value){
+            AdaptiveAlertDialog(
+                title = "Area not found",
+                text = "Please ensure you enter a full, valid city or place",
+                confirmText = "OK",
+                dismissText = "",
+                onConfirm = {
+                    shouldShowPostcodeAlertDialog.value = false
+                },
+                onDismiss = {
+                    shouldShowPostcodeAlertDialog.value = false
+                },
+                properties = DialogProperties()
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -92,7 +129,12 @@ class FindMyAreaScreen: Screen {
                                 shape = RoundedCornerShape(0.dp, 6.dp, 6.dp, 0.dp))
                             .align(Alignment.CenterEnd)
                             .clickable {
-                                navigator.push(AreaListScreen())
+                                  if(text.isEmpty()){
+                                      shouldShowPostcodeAlertDialog.value = true
+                                  } else {
+                                      navigator.push(AreaListScreen(text))
+                                  }
+
                             },
                         ){
                         Icon(
@@ -137,7 +179,7 @@ class FindMyAreaScreen: Screen {
                     BasicTextField(
                         value = text,
                         modifier = Modifier.zIndex(1f).align(Alignment.CenterStart),
-                        onValueChange = { text = it},
+                        onValueChange = { text = it },
                         decorationBox = { innerTextField ->
                             TextFieldDefaults.TextFieldDecorationBox(
                                 value = text,
@@ -179,9 +221,12 @@ class FindMyAreaScreen: Screen {
 
             Spacer(modifier = Modifier.height(23.dp))
 
+
             Button(
                 modifier = Modifier.fillMaxWidth().height(47.dp),
-                onClick = {},
+                onClick = {
+                   shouldShowAlertDialog.value = true
+                },
                 contentPadding = PaddingValues(horizontal = 23.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colorResource(MR.colors.primaryColor))
             ) {

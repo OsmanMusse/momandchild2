@@ -2,6 +2,7 @@ package screens
 
 import Choice
 import ScrollBarConfig
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
@@ -28,6 +29,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +63,7 @@ class SharedViewModel(): ScreenModel {
     var mainData: Map<String,MainData>? = null
     var navTitle: String = "Home"
     var shouldShowBackBtn: Boolean = false
+    var hospitalName: String? = settings.getStringOrNull(PreferencesKeys.HOSPITAL)
     var navigationStack = mutableStateStackOf("Home")
 }
 
@@ -140,21 +143,36 @@ class SharedViewModel(): ScreenModel {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Column {
-                Text(
-                    text = "Your personal choices",
-                    color = colorResource(MR.colors.h2_color),
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
 
-                Spacer(modifier = Modifier.height(3.dp))
+                if(sharedScreenModel.hospitalName == null){
+                    Column {
+                        Text(
+                            text = "Your personal choices",
+                            color = colorResource(MR.colors.h2_color),
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
 
-                Text(
-                    text = "Explore your maternity unit in your area, add appointments and develop your personal care plans:",
-                    color = colorResource(MR.colors.p_color),
-                    fontSize = 15.sp
-                )
+                        Spacer(modifier = Modifier.height(3.dp))
+
+                        Text(
+                            text = "Explore your maternity unit in your area, add appointments and develop your personal care plans:",
+                            color = colorResource(MR.colors.p_color),
+                            fontSize = 15.sp
+                        )
+                    }
+                } else {
+                    println("UPDATED VALUE == ${sharedScreenModel.hospitalName}")
+                    Column {
+                        Text(
+                            text = "${sharedScreenModel.hospitalName}",
+                            color = colorResource(MR.colors.h2_color),
+                            fontSize = 17.5.sp,
+                            textAlign = TextAlign.Start,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                }
             }
 
 

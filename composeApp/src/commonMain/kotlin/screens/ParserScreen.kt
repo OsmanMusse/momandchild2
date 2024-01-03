@@ -86,6 +86,7 @@ data class ParserScreen(
 
     @Composable
     private fun DrawTitle(title: Title){
+
         Text(
             text = "${title.text}",
             color = colorResource(MR.colors.h2_color),

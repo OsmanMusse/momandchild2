@@ -29,6 +29,7 @@ class ParserViewModel: ViewModel() {
         val data = httpClient
             .get("https://nativecarebucket.s3.eu-west-2.amazonaws.com/main.json").call.body<Map<String,MainData>>()
          _state.value = _state.value.copy(mainData = data.get("Your pregnancy"))
+
     }
 
      fun parserHTML(content:String){

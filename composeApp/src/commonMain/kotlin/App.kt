@@ -140,6 +140,7 @@ fun App() {
                                  fontSize = 32.sp,
                                  color = Color.White,
                                  modifier = Modifier.clickable {
+                                     sharedViewModel.shouldShowBackBtn = false
                                      scope.launch {
                                          drawerState.close()
                                      }
